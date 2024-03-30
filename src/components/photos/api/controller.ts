@@ -1,40 +1,28 @@
 import { PhotoType } from '../domain';
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import * as PhotoService from './../data-access';
-import { sendResponse, statusCodes } from '@/Helpers/sendResponse';
+import { sendResponse } from '@/Helpers/sendResponse';
+import { StatusCodes } from 'http-status-codes';
+import AppError from '@/Helpers/appError';
 
 export const addNewPhoto = async (req: Request, res: Response) => {
-  try {
-    console.log(req.body);
-    const photo: PhotoType = req.body;
-    const data = await PhotoService.addNewPhoto(photo);
-    sendResponse(res, statusCodes.OK, data);
-  } catch (error) {
-    if (error instanceof Error) {
-      sendResponse(res, statusCodes.ERROR, null, error.message);
-    }
-  }
+  console.log(req.body);
+  const photo: PhotoType = req.body;
+  const data = await PhotoService.addNewPhoto(photo);
+  sendResponse(res, StatusCodes.OK, data);
 };
 
 export const getAllPhotos = async (req: Request, res: Response) => {
-  try {
-    const data: PhotoType[] = await PhotoService.getAllPhotos();
-    sendResponse(res, statusCodes.OK, data);
-  } catch (error) {
-    if (error instanceof Error) {
-      sendResponse(res, statusCodes.ERROR, null, error.message);
-    }
-  }
+  const data: PhotoType[] = await PhotoService.getAllPhotos();
+  console.log(data);
+  sendResponse(res, StatusCodes.OK, data);
 };
 
-export const getPhotoById = async (req: Request, res: Response) => {
-  try {
-    const id = req.params.id;
-    const data = await PhotoService.getPhotoById(id);
-    sendResponse(res, statusCodes.OK, data);
-  } catch (error) {
-    if (error instanceof Error) {
-      sendResponse(res, statusCodes.ERROR, null, error.message);
-    }
+export const getPhotoById = async (req: Request, res: Response, next: NextFunction) => {
+  const id = req.params.id;
+  const data = await PhotoService.getPhotoById(id);
+  if (!data) {
+    next(new AppError('No Photo Found with provided ID', StatusCodes.NOT_FOUND));
   }
+  sendResponse(res, StatusCodes.OK, data);
 };

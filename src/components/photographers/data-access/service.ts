@@ -1,10 +1,8 @@
 import { PhotographerModel, PhotographerType } from '../domain';
 
-export const getAllPhotographers = async (): Promise<
-  PhotographerType[] | []
-> => {
+export const getAllPhotographers = async (): Promise<PhotographerType[] | []> => {
   try {
-    return await PhotographerModel.find();
+    return await PhotographerModel.find().populate('photos').exec();
   } catch (error) {
     throw error;
   }
@@ -18,9 +16,7 @@ export const addNewPhotographer = async (photographerOb: PhotographerType) => {
   }
 };
 
-export const getPhotographerById = async (
-  id: String
-): Promise<PhotographerType | null> => {
+export const getPhotographerById = async (id: String): Promise<PhotographerType | null> => {
   try {
     return await PhotographerModel.findById(id);
   } catch (error) {

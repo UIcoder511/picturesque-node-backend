@@ -1,34 +1,31 @@
 import { Response } from 'express';
 
+enum StatusType {
+  Success = 'success',
+  Error = 'error',
+}
 interface ResponseData {
-  success: boolean;
+  status: StatusType;
   data?: any;
-  error?: {
-    message: String;
-  };
+
+  message?: String;
+  stack?: String;
+  error?: any;
   size?: Number;
 }
 
-export const statusCodes = {
-  OK: 201,
-  ERROR: 404,
-};
-
-export function sendResponse(
-  res: Response,
-  status: number,
-  data?: any,
-  error?: string
-): void {
+export function sendResponse(res: Response, status: number, data?: any, error?: string): void {
   const responseData: ResponseData = {
-    success: status >= 200 && status < 400,
+    status: status >= 200 && status < 400 ? StatusType.Success : StatusType.Error,
   };
 
   if (data) {
     responseData.data = data;
     if (Array.isArray(data)) responseData.size = data.length;
-  } else if (error) {
-    responseData.error = { message: error };
+  }
+
+  if (data.message && typeof data.message === 'string') {
+    responseData.message = data.message;
   }
 
   res.status(status).json(responseData);
